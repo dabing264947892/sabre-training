@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Sabre 预订基础培训</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px 20px 80px 20px; }
+
+        /* 封面页 */
+        .title-slide {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px; padding: 80px 60px; margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; color: white;
+        }
+        .title-slide h1 { font-size: 3em; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .title-slide .subtitle { font-size: 1.4em; opacity: 0.9; margin-bottom: 30px; }
+        .title-slide .links { background: rgba(255,255,255,0.15); padding: 20px; border-radius: 10px; margin-top: 30px; }
+        .title-slide a { color: #fff; text-decoration: underline; }
+
+        /* 通用幻灯片样式 */
+        .slide {
+            background: white; border-radius: 15px; padding: 35px 45px; margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .slide-header {
+            border-bottom: 3px solid #667eea; padding-bottom: 15px; margin-bottom: 25px;
+        }
+        .slide-header h2 {
+            color: #1a1a2e; font-size: 1.8em; display: flex; align-items: center; gap: 12px;
+        }
+        .slide-header h2::before {
+            content: ''; width: 8px; height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 4px;
+        }
+        .section-number {
+            background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+            padding: 5px 15px; border-radius: 20px; font-size: 0.5em;
+        }
+
+        /* 内容块 */
+        .content-block {
+            background: #f8f9fa; border-left: 4px solid #667eea;
+            padding: 18px 22px; margin-bottom: 18px; border-radius: 0 10px 10px 0;
+        }
+        .content-block h3 {
+            color: #1a1a2e; font-size: 1.25em; margin-bottom: 12px;
+        }
+
+        /* 重要指令 - 红色加粗 */
+        .highlight-command {
+            background: linear-gradient(135deg, #fff5f5, #ffeaea);
+            border: 2px solid #e74c3c; border-radius: 8px;
+            padding: 12px 18px; margin: 8px 0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: #c0392b; font-weight: bold; font-size: 1.1em;
+            display: inline-block;
+        }
+
+        /* 代码块 */
+        .code-block {
+            background: #1e1e1e; color: #d4d4d4; padding: 12px 18px;
+            border-radius: 8px; font-family: 'Consolas', 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        .code-block .comment { color: #6a9955; }
+
+        /* 列布局 */
+        .columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin: 15px 0; }
+        .column { background: #f8f9fa; padding: 15px; border-radius: 8px; }
+
+        /* 舱位标签 */
+        .cabin-badge { display: inline-block; padding: 4px 12px; border-radius: 15px; font-size: 0.85em; font-weight: bold; margin: 3px; }
+        .cabin-fb { background: #9b59b6; color: white; }
+        .cabin-bb { background: #3498db; color: white; }
+        .cabin-sb { background: #1abc9c; color: white; }
+        .cabin-yb { background: #f39c12; color: white; }
+
+        /* 提示框 */
+        .tip-box {
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 4px solid #4caf50; padding: 12px 18px;
+            margin: 12px 0; border-radius: 0 8px 8px 0;
+        }
+        .tip-box.warning { background: linear-gradient(135deg, #fff3e0, #ffe0b2); border-left-color: #ff9800; }
+        .tip-box.info { background: linear-gradient(135deg, #e3f2fd, #bbdefb); border-left-color: #2196f3; }
+
+        /* 列表 */
+        ul.styled-list { list-style: none; }
+        ul.styled-list li { padding: 6px 0; padding-left: 22px; position: relative; }
+        ul.styled-list li::before { content: '▸'; color: #667eea; position: absolute; left: 0; font-weight: bold; }
+
+        /* 导航 - 底部居中 */
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: rgba(26, 26, 46, 0.9);
+            padding: 10px 15px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            color: rgba(255,255,255,0.8);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+        .nav-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        /* 进度条 */
+        .progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(135deg, #667eea, #764ba2); transition: width 0.3s; z-index: 1001; }
+
+        /* 页脚 */
+        .footer { text-align: center; color: rgba(255,255,255,0.7); padding: 20px; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="container">
+
+        <!-- 第 1 页：封面 -->
+        <div class="title-slide">
+            <h1>2026 Sabre 预订基础培训</h1>
+            <p class="subtitle">机票预订系统操作指南</p>
+            <div class="links">
+                <p>📌 Sabre 网页版：<a href="https://srw.sabre.com/" target="_blank">https://srw.sabre.com/</a></p>
+                <p>📌 Sabre Red 360 下载：<a href="https://www.sabre.com/products/suites/customer-touchpoints/sabre-red-360/" target="_blank">https://www.sabre.com/products/suites/customer-touchpoints/sabre-red-360/</a></p>
+            </div>
+        </div>
+
+        <!-- 第 2 页：快速预订编码 -->
+        <div class="slide" id="slide1">
+            <div class="slide-header">
+                <h2><span class="section-number">01</span>快速预订编码</h2>
+            </div>
+
+            <div class="content-block">
+                <h3>航班查询</h3>
+                <p><span class="highlight-command">120DECLAXPEK</span></p>
+                <p style="margin-top:8px;"><strong>常用指令：</strong></p>
+                <ul class="styled-list">
+                    <li><span class="highlight-command">1*</span> 下一页</li>
+                    <li><span class="highlight-command">1*OA</span> 返回前一页</li>
+                    <li><span class="highlight-command">1*C</span> 显示全部舱位</li>
+                    <li><span class="highlight-command">1-1</span> 前一天 | <span class="highlight-command">11</span> 后一天</li>
+                </ul>
+                <p style="margin-top:10px;"><strong>舱位代码：</strong>
+                    <span class="cabin-badge cabin-fb">FB 头等</span>
+                    <span class="cabin-badge cabin-bb">BB 商务</span>
+                    <span class="cabin-badge cabin-sb">SB 豪经</span>
+                    <span class="cabin-badge cabin-yb">YB 经济</span>
+                </p>
+            </div>
+
+            <div class="content-block">
+                <h3>预订座位 & 核价</h3>
+                <p><span class="highlight-command">01Y1</span> 或 <span class="highlight-command">0 CA 938 Y 23FEB HKG PEK NN2</span></p>
+                <p style="margin-top:10px;"><strong>核价指令：</strong></p>
+                <ul class="styled-list">
+                    <li><span class="highlight-command">WP</span> / <span class="highlight-command">WPAYY</span> - 普通核价</li>
+                    <li><span class="highlight-command">WPNCB</span> - 儿童票价 (<span class="highlight-command">PCNN</span>)</li>
+                    <li><span class="highlight-command">WPA 航司代码</span> - 婴儿票价 (<span class="highlight-command">PINF</span>)</li>
+                </ul>
+            </div>
+
+            <div class="tip-box warning">
+                <strong>⚠️ 重要：</strong>录入名字后、未出票前，务必核实退改规则！<br>
+                <span class="highlight-command" style="margin-top:8px;">WPA XX</span> (XX=航司代码)
+            </div>
+        </div>
+
+        <!-- 第 3 页：退改规则查询 -->
+        <div class="slide" id="slide2">
+            <div class="slide-header">
+                <h2><span class="section-number">02</span>退改规则查询</h2>
+            </div>
+
+            <div class="content-block">
+                <h3>退改指令</h3>
+                <p><span class="highlight-command">WPRD*PE</span> - 查看当前行程退改规则</p>
+                <p style="margin-top:10px;"><strong>多段行程：</strong><br>
+                <span class="highlight-command">WPRD*1¥PE</span> - 看第一段退改</p>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <strong>按乘客类型查询</strong>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">WPRD*1¥PE</span> - 第一乘客类型</li>
+                        <li><span class="highlight-command">WPRD*1¥S1¥PE</span> - 第一航段</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <strong>按舱位查询</strong>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">WPNCB¥TC-BB</span> - 公务</li>
+                        <li><span class="highlight-command">WPNCB¥TC-SB</span> - 豪经</li>
+                        <li><span class="highlight-command">WPNCB¥TC-FB</span> - 头等</li>
+                        <li><span class="highlight-command">WPNCB¥TC-YB</span> - 经济</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-box info">
+                <strong>💡 Q 可退改签票价：</strong><br>
+                <span class="highlight-command">WPMPR-ANY¥NCB</span> - 可退票最低舱位<br>
+                <span class="highlight-command">WPMPC-ANY¥NCB</span> - 可改签最低舱位<br>
+                <span class="highlight-command">WPMP-ANY¥NCB</span> - 可改签或可退票最低舱位
+            </div>
+        </div>
+
+        <!-- 第 4 页：证件及联系方式录入 -->
+        <div class="slide" id="slide3">
+            <div class="slide-header">
+                <h2><span class="section-number">03</span>证件及联系方式录入</h2>
+            </div>
+
+            <div class="content-block">
+                <h3>PNR 提取</h3>
+                <p><span class="highlight-command">*ABCDEF</span> 或 <span class="highlight-command">*-姓/名</span> 或 <span class="highlight-command">WERT*T 票号</span></p>
+            </div>
+
+            <div class="content-block">
+                <h3>护照信息录入</h3>
+                <p><span class="highlight-command">3DOCSA/P/CN/E05486598/CN/04MAY1991/F/30APR2026/ZHANG/SAN/H-1.1</span></p>
+                <p style="margin-top:8px;">简短版：<span class="highlight-command">3DOCSA/DB/25OCT96/M/ZHANG/SAN-1.1</span></p>
+
+                <div class="tip-box warning" style="margin-top:12px;">
+                    <strong>⚠️ 美国航空行程用 4 开头：</strong><br>
+                    <span class="highlight-command">4DOCSA/P/CN/...</span>
+                </div>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <strong>联系方式</strong>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">3CTCMA/+8618881111-1.1</span> - 电话</li>
+                        <li><span class="highlight-command">3CTCEA/ZLS//OTW.CN-1.1</span> - 邮箱</li>
+                        <li><span class="highlight-command">PE¥邮箱@域名¥</span> - 添加邮箱</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <strong>其他信息</strong>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">3FOID/PPCNE005486598-1.1</span> - 证件</li>
+                        <li><span class="highlight-command">5 500USD 1PC</span> - 备注</li>
+                        <li><span class="highlight-command">PDTSTU-1.1</span> - 学生票</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 5 页：常用变更指令 -->
+        <div class="slide" id="slide4">
+            <div class="slide-header">
+                <h2><span class="section-number">04</span>常用变更指令</h2>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <h3>行程变更</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">WC1Y</span> - 第 1 段改 Y 舱</li>
+                        <li><span class="highlight-command">WCAY</span> - 全部改 Y 舱</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>取消指令</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">X2</span> - 取消第 2 段</li>
+                        <li><span class="highlight-command">XI</span> - 取消全部 (封口)</li>
+                        <li><span class="highlight-command">,2S2</span> - 第二段改 2 人</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-block" style="margin-top:18px;">
+                <h3>信息更新</h3>
+                <div class="columns">
+                    <div class="column">
+                        <ul class="styled-list">
+                            <li><span class="highlight-command">-1¤</span> - 更新第一位名字</li>
+                            <li><span class="highlight-command">51¤</span> - 更新电话</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <ul class="styled-list">
+                            <li><span class="highlight-command">91¤</span> - 更新操作员</li>
+                            <li><span class="highlight-command">71¤</span> - 更新出票时限</li>
+                        </ul>
+                    </div>
+                    <div class="column">
+                        <ul class="styled-list">
+                            <li><span class="highlight-command">PE1¤¥</span> - 更新邮箱</li>
+                            <li><span class="highlight-command">FF1¤</span> - 修改常旅客</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box warning">
+                <strong>⚠️ PNR 分离步骤：</strong><br>
+                <span class="highlight-command">D2.1</span> → <span class="highlight-command">6 操作名字</span> → <span class="highlight-command">*A</span> → <span class="highlight-command">F</span> → <span class="highlight-command">ER</span> (封口保存)
+            </div>
+        </div>
+
+        <!-- 第 6 页：出票后指令 -->
+        <div class="slide" id="slide5">
+            <div class="slide-header">
+                <h2><span class="section-number">05</span>出票后常用指令</h2>
+            </div>
+
+            <div class="content-block">
+                <h3>查看票面信息</h3>
+                <p><span class="highlight-command">*T</span> - 提取 PNR 后展开票号项</p>
+                <p style="margin-top:10px;"><span class="highlight-command">WETR*N/E</span> - 查看票面信息 (n=票号所在行数)</p>
+            </div>
+
+            <div class="content-block">
+                <h3>出票后查询退改</h3>
+                <p><span class="highlight-command">FQ 出票日期 城市对 出发日期 - 航司代码¥Q 运价基础</span></p>
+                <div class="code-block"><span class="comment">示例：FQ 15DEC LAXPEK 20DEC-CA¥Q YLOWCN</span></div>
+            </div>
+        </div>
+
+        <!-- 第 7 页：其他常用指令 (上) -->
+        <div class="slide" id="slide6">
+            <div class="slide-header">
+                <h2><span class="section-number">06</span>其他常用指令（上）</h2>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <h3>转机时间</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">VCT*</span> - 检查全部航段</li>
+                        <li><span class="highlight-command">VCT*1/2</span> - 检查第 1/2 段</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>缺口行程</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">0AA</span> - 自动插入缺口</li>
+                        <li><span class="highlight-command">0A</span> - 插入 ARNK 段</li>
+                        <li><span class="highlight-command">/3/2</span> - 调整顺序</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-block" style="margin-top:18px;">
+                <h3>航班变动接受</h3>
+                <p><span class="highlight-command">EWR</span> - 在 PNR 中输入，将 TK 更新到 HK (UN/HK 自动清除，KK 更新 HK)</p>
+            </div>
+
+            <div class="content-block" style="margin-top:18px;">
+                <h3>常旅客信息</h3>
+                <p><span class="highlight-command">FF 航司代码航司会员号</span> - 录入常旅客号</p>
+                <p style="margin-top:8px;"><span class="highlight-command">*FF</span> - 显示 | <span class="highlight-command">FF1¤</span> - 修改</p>
+                <p style="margin-top:8px;"><span class="highlight-command">FF UA 123456/CA-1.1</span> - UA 常旅客号积分到 CA 航班</p>
+                <p style="margin-top:8px;"><span class="highlight-command">PT*</span> - 显示里程累积协议 | <span class="highlight-command">PT*CA</span> - 国航可接受航司</p>
+            </div>
+        </div>
+
+        <!-- 第 8 页：其他常用指令 (下) -->
+        <div class="slide" id="slide7">
+            <div class="slide-header">
+                <h2><span class="section-number">07</span>其他常用指令（下）</h2>
+            </div>
+
+            <div class="content-block">
+                <h3>发送行程单</h3>
+                <div class="tip-box info">
+                    <strong>💡 重要：</strong>发送行程单签 IR，确保没有操作其他指令
+                </div>
+                <p style="margin-top:10px;"><span class="highlight-command">PE¥ZHANGSAN@OTW.CN¥TO/¤C</span> - 中文行程单</p>
+                <p style="margin-top:8px;"><span class="highlight-command">PE¥ZHENGHUABING@OTW.CN¥TO/¤E</span> - 英文行程单</p>
+                <p style="margin-top:8px;"><span class="highlight-command">6 名字，EMR¥A1</span> - 回车发送 (有封口保存功能)</p>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <h3>航班查询</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">V*CM878/17JUN</span> - V* 航班号/出发日</li>
+                        <li><span class="highlight-command">DU*/SPM</span> - 检查餐食代码</li>
+                        <li><span class="highlight-command">3 KSML1-3.1</span> - 餐食代码航段号 - 乘客序号</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>行李直挂查询</h3>
+                    <p><span class="highlight-command">W/*YY¥*ZZ</span></p>
+                    <div class="code-block" style="font-size:0.85em;"><span class="comment">YY=第一航司，ZZ=第二航司<br>示例：W/*AC¥*DL</span></div>
+                    <p style="margin-top:8px;"><strong>MAY ISSUE TICKETS</strong> - 可签转<br><strong>MAY CHECK BAGGAGE TO</strong> - 可直挂</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 第 9 页：快速参考表 -->
+        <div class="slide" id="slide8">
+            <div class="slide-header">
+                <h2><span class="section-number">08</span>快速参考表</h2>
+            </div>
+
+            <div class="columns">
+                <div class="column">
+                    <h3>基础操作</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">120DECLAXPEK</span> - 航班查询</li>
+                        <li><span class="highlight-command">01Y1</span> - 预订座位</li>
+                        <li><span class="highlight-command">WP</span> - 核价</li>
+                        <li><span class="highlight-command">WPRD*PE</span> - 退改规则</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>证件录入</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">*ABCDEF</span> - 提取 PNR</li>
+                        <li><span class="highlight-command">3DOCSA/...</span> - 护照信息</li>
+                        <li><span class="highlight-command">3CTCMA/...</span> - 电话</li>
+                    </ul>
+                </div>
+                <div class="column">
+                    <h3>变更指令</h3>
+                    <ul class="styled-list">
+                        <li><span class="highlight-command">WC1Y</span> - 改舱位</li>
+                        <li><span class="highlight-command">X2</span> - 取消航段</li>
+                        <li><span class="highlight-command">-1¤</span> - 改名字</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="tip-box" style="margin-top:18px;">
+                <strong>💡 出票后操作：</strong><br>
+                <span class="highlight-command">*T</span> 查票号 → <span class="highlight-command">WETR*N/E</span> 查票面 → <span class="highlight-command">FQ...</span> 查退改 → <span class="highlight-command">PE¥...¥TO/¤C/E</span> 发行程单
+            </div>
+        </div>
+
+        <!-- 第 10 页：封底 -->
+        <div class="title-slide">
+            <h1>谢谢观看</h1>
+            <p class="subtitle">祝您工作顺利！</p>
+            <p style="opacity:0.8; margin-top:20px;">2026 Sabre 预订基础培训</p>
+        </div>
+    </div>
+
+    <div class="footer">© 2026 Sabre Training Presentation</div>
+
+    <!-- 导航按钮 -->
+    <div class="navigation">
+        <button class="nav-btn" onclick="scrollToTop()" title="Top">▲</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide1')" title="Page 1">1</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide2')" title="Page 2">2</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide3')" title="Page 3">3</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide4')" title="Page 4">4</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide5')" title="Page 5">5</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide6')" title="Page 6">6</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide7')" title="Page 7">7</button>
+        <button class="nav-btn" onclick="scrollToSlide('slide8')" title="Page 8">8</button>
+        <button class="nav-btn" onclick="scrollToBottom()" title="Bottom">▼</button>
+    </div>
+
+    <script>
+        window.onscroll = function() {
+            var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var scrolled = (winScroll / height) * 100;
+            document.getElementById("progressBar").style.width = scrolled + "%";
+        };
+        function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function scrollToSlide(id) { document.getElementById(id).scrollIntoView({ behavior: 'smooth' }); }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'PageDown' || e.key === 'ArrowDown') {
+                window.scrollBy({ top: window.innerHeight * 0.8, behavior: 'smooth' });
+            } else if (e.key === 'PageUp' || e.key === 'ArrowUp') {
+                window.scrollBy({ top: -window.innerHeight * 0.8, behavior: 'smooth' });
+            } else if (e.key === 'Home') { scrollToTop(); }
+            else if (e.key === 'End') { scrollToBottom(); }
+        });
+    </script>
+</body>
+</html>
